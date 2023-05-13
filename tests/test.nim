@@ -1,7 +1,7 @@
 ## Put your tests here.
 
 import pretty {.all.}
-import json
+import json, tables, sets
 
 block:
   let
@@ -169,3 +169,19 @@ block:
 
   var c = Red
   print Red, c
+
+block:
+  # tables
+  print {"a": 1, "b": 2}.toTable
+  var a: Table[int, int]
+  for i in 0 .. 30:
+    a[i] = i
+  print a
+
+block:
+  # tables
+  print [1, 2, 3, 4].toHashSet
+  var a: HashSet[int]
+  for i in 0 .. 30:
+    a.incl(i)
+  print a

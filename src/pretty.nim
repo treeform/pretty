@@ -1,4 +1,4 @@
-import macros, sets, strutils, typetraits, math
+import macros, sets, strutils, typetraits, math, tables
 
 when not defined(js):
   import terminal
@@ -19,6 +19,8 @@ type
     SetNode
     ProcNode
     EnumNode
+    TableNode
+    HashSetNode
 
   Node = ref object
     kind: NodeKind
@@ -114,6 +116,28 @@ proc add*[T](ctx: PrettyContext, name: string, v: seq[T]) =
   ctx.parent.nodes.add Node(kind: TypeNameNode, value: objName)
   for e in v:
     ctx.add("", e)
+  ctx.parent = p
+  ctx.parent.nodes.add(node)
+
+proc add*[K, V](ctx: PrettyContext, name: string, v: Table[K, V]) =
+  let p = ctx.parent
+  let node = Node(kind: TableNode, name: name)
+  ctx.parent = node
+  let objName = "Table"
+  ctx.parent.nodes.add Node(kind: TypeNameNode, value: objName)
+  for k, v in v:
+    ctx.add($k, v)
+  ctx.parent = p
+  ctx.parent.nodes.add(node)
+
+proc add*[T](ctx: PrettyContext, name: string, v: HashSet[T]) =
+  let p = ctx.parent
+  let node = Node(kind: HashSetNode, name: name)
+  ctx.parent = node
+  let objName = "HashSet"
+  ctx.parent.nodes.add Node(kind: TypeNameNode, value: objName)
+  for v in v:
+    ctx.add("", v)
   ctx.parent = p
   ctx.parent.nodes.add(node)
 
@@ -229,57 +253,7 @@ proc prettyString*(ctx: PrettyContext, node: Node, indent: int = 0): string =
 
     let useBlock = ctx.isBlock(node)
 
-    if node.kind == ObjectNode:
-
-      if useBlock:
-        result.add ctx.prettyString(node.nodes[0], 0)
-        result.add "(\n"
-        for i, n in node.nodes[1..^1]:
-          if i != 0:
-            result.add ",\n"
-          result.add ctx.prettyString(n, indent + 2)
-        result.add "\n"
-        result.add " ".repeat(indent)
-        result.add ")"
-      else:
-        result.add ctx.prettyString(node.nodes[0])
-        result.add "("
-        for i, n in node.nodes[1..^1]:
-          if i != 0:
-            result.add ", "
-          result.add ctx.prettyString(n)
-        result.add ")"
-
-
-    elif node.kind in {TupleNode, ArrayNode, SeqNode, SetNode}:
-      case node.kind:
-        of TupleNode: result.add "("
-        of ArrayNode: result.add "["
-        of SeqNode: result.add "@["
-        of SetNode: result.add "{"
-        else: discard
-      if useBlock:
-        result.add "\n"
-        for i, n in node.nodes[1..^1]:
-          if i != 0:
-            result.add ",\n"
-          result.add ctx.prettyString(n, indent + 2)
-        result.add "\n"
-        result.add " ".repeat(indent)
-      else:
-        result.add "["
-        for i, n in node.nodes[1..^1]:
-          if i != 0:
-            result.add ", "
-          result.add ctx.prettyString(n)
-      case node.kind:
-        of TupleNode: result.add ")"
-        of ArrayNode: result.add "]"
-        of SeqNode: result.add "]"
-        of SetNode: result.add "}"
-        else: discard
-
-    else:
+    if node.kind == RootNode:
       if useBlock:
         for i, n in node.nodes:
           if i == 0:
@@ -292,6 +266,41 @@ proc prettyString*(ctx: PrettyContext, node: Node, indent: int = 0): string =
           if i != 0:
             result.add " "
           result.add ctx.prettyString(n)
+    else:
+
+      case node.kind:
+        of TupleNode: result.add "("
+        of ArrayNode: result.add "["
+        of SeqNode: result.add "@["
+        of SetNode: result.add "{"
+        of ObjectNode:
+          result.add ctx.prettyString(node.nodes[0])
+          result.add "("
+        of TableNode: result.add "{"
+        of HashSetNode: result.add "["
+        else: discard
+      if useBlock:
+        result.add "\n"
+        for i, n in node.nodes[1..^1]:
+          if i != 0:
+            result.add ",\n"
+          result.add ctx.prettyString(n, indent + 2)
+        result.add "\n"
+        result.add " ".repeat(indent)
+      else:
+        for i, n in node.nodes[1..^1]:
+          if i != 0:
+            result.add ", "
+          result.add ctx.prettyString(n)
+      case node.kind:
+        of TupleNode: result.add ")"
+        of ArrayNode: result.add "]"
+        of SeqNode: result.add "]"
+        of SetNode: result.add "}"
+        of ObjectNode: result.add ")"
+        of TableNode: result.add "}.toTable"
+        of HashSetNode: result.add "].toHashSet"
+        else: discard
 
 proc prettyString*(ctx: PrettyContext): string =
   return ctx.prettyString(ctx.root)
