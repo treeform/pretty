@@ -1,4 +1,4 @@
-import macros, sets, strutils, typetraits, math, tables
+import macros, sets, strutils, typetraits, math, tables, json
 
 when not defined(js):
   import terminal
@@ -221,6 +221,37 @@ proc add*[T](ctx: PrettyContext, name: string, v: set[T]) =
     ctx.add("", e)
   ctx.parent = p
   ctx.parent.nodes.add(node)
+
+proc add*(ctx: PrettyContext, name: string, v: JsonNode) =
+  case v.kind:
+    of JObject:
+      let p = ctx.parent
+      let node = Node(kind: SetNode, name: name)
+      ctx.parent = node
+      let objName = "object"
+      ctx.parent.nodes.add Node(kind: TypeNameNode, value: objName)
+      for k, e in v:
+        ctx.add($k, e)
+      ctx.parent = p
+      ctx.parent.nodes.add(node)
+    of JArray:
+      let p = ctx.parent
+      let node = Node(kind: ArrayNode, name: name)
+      ctx.parent = node
+      let objName = "array"
+      ctx.parent.nodes.add Node(kind: TypeNameNode, value: objName)
+      for e in v:
+        ctx.add("", e)
+      ctx.parent = p
+      ctx.parent.nodes.add(node)
+    of JString:
+      ctx.parent.nodes.add Node(kind: StringNode, name: name, value: escapeString(v.getStr))
+    of JInt, JFloat:
+      ctx.parent.nodes.add Node(kind: NumberNode, name: name, value: $v)
+    of JBool:
+      ctx.parent.nodes.add Node(kind: BoolNode, name: name, value: $v)
+    of JNull:
+      ctx.parent.nodes.add Node(kind: BoolNode, name: name, value: "null")
 
 proc isBlock(ctx: PrettyContext, node: Node): bool =
   var total = 0

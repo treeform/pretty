@@ -185,3 +185,17 @@ block:
   for i in 0 .. 30:
     a.incl(i)
   print a
+
+block:
+  # json
+  let json = %*{
+    "a": 123,
+    "b": "hi",
+    "c": true
+  }
+  print json
+
+  var json2 = newJArray()
+  for i in 0 ..< 20:
+    json2.add(%("element" & $i))
+  print json2
