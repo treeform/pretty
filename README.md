@@ -56,8 +56,16 @@ Pretty only applies fancy colors when it detects a terminal. If you pipe the out
 Pretty attempts to print everything in a single line, but if the output exceeds the maximum width of the current terminal, it will create indentation levels for improved readability. The maximum width is determined based on the maximum width of the current terminal.
 
 ```nim
-g2 = Bar(a: "hi a really really long string", b: @["a", "abc"], c: 1234)
+let g2 = Bar(a: "hi a really really long string", b: @["a", "abc"], c: 1234)
 print g2
+```
+
+```nim
+g2: Bar(
+  a: "hi a really really long string",
+  b: @["a", "abc"],
+  c: 1234
+)
 ```
 
 ## Stuff `echo` does not do well
