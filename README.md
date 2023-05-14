@@ -15,13 +15,13 @@ This is a rewrite of the now deprecated [print](https://github.com/treeform/prin
 You wanna print-debug like a boss? Then ditch that `echo` and use pretty `print` instead. This bad boy spits out object info in that sweet "Nim way" with syntax highlighting! Plus, it don't matter what kinda crazy sh*t you throw at it - refs, pointers, cycles, you name it - pretty will manage.
 
 ```nim
-import print
+import pretty
 
 let a = 3
 print a
 ```
 ```nim
-a = 3
+a: 3
 ```
 
 ## The "Nim way"
@@ -40,7 +40,7 @@ let
 print a, b, c, d, d2, f
 ```
 ```nim
-a=3 b="hi there" c="oh\nthis\0isit!" d=@[1, 2, 3] d2=[1, 2, 3] f=Foo(a:"hi", b:@["a", "abc"], c:1234)
+a: 3 b: "hi there" c: "oh\nthis\0isit!" d: @[1, 2, 3] d2: [1, 2, 3] f: Foo(a: "hi", b: @["a", "abc"], c: 1234)
 ```
 
 ## Syntax highlighting
@@ -89,7 +89,7 @@ let
 print p1, p2
 ```
 ```nim
-p1=nil p2=nil
+p1: nil p2: nil
 ```
 
 ```nim
@@ -98,7 +98,7 @@ var pointerToThree = cast[pointer](addr three)
 print pointerToThree
 ```
 ```nim
-pointerToThree=0x00000000004360A0
+pointerToThree: 0x00000000004360A0
 ```
 
 ```nim
@@ -110,7 +110,7 @@ n.next = n
 print n
 ```
 ```nim
-n=Node(data: "hi", next: ...)
+n: Node(data: "hi", next: ...)
 ```
 
 ## Pretty also does Tables, Sets and even Json!
