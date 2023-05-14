@@ -8,7 +8,7 @@
 
 This library has no dependencies other than the Nim standard library.
 
-This is a rewrite of the now deprecated [API reference](https://github.com/treeform/print).
+This is a rewrite of the now deprecated [print](https://github.com/treeform/print).
 
 ## About
 
