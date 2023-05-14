@@ -47,7 +47,7 @@ a=3 b="hi there" c="oh\nthis\0isit!" d=@[1, 2, 3] d2=[1, 2, 3] f=Foo(a:"hi", b:@
 
 Screenshot from VS Code:
 
-![Image of Yaktocat](docs/screenshot.png)
+![Highlight](docs/highlight.png)
 
 Pretty only applies fancy colors when it detects a terminal. If you pipe the output of your program to a file or another command, it will output plain text.
 
@@ -139,3 +139,26 @@ print adder
 ```nim
 adder: proc (a: int, b: int): int
 ```
+
+## Pretty tables
+
+Pretty also has the ability to print data as tables, which can often be a more natural and intuitive way to display information compared to nested data structures. Pretty cool!
+
+```nim
+type
+  Mob = object
+    name: string
+    hp: int
+    x: float
+    y: float
+    mode: char
+var mobs = @[
+  Mob(name:"Boyar Dens", hp: 120, x:1.2, y:2.33333, mode:'a'),
+  Mob(name:"Kozar\0", hp: 20, x:21.23, y:2.3),
+  Mob(name:"Goffer", hp: 25, x:31.2, y:2.3),
+  Mob(name:"Hexer the Great", hp: 0, x:41.2, y:122.3, mode:'b'),
+]
+printTable mobs
+```
+
+![Table](docs/table.png)
