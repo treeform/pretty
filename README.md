@@ -12,7 +12,7 @@ This is a rewrite of the now deprecated [print](https://github.com/treeform/prin
 
 ## About
 
-You wanna print-debug like a boss? Then ditch that `echo` and use pretty `print` instead. This bad boy spits out object info in that sweet "Nim way" with syntax highlighting! Plus, it don't matter what kinda crazy sh*t you throw at it - refs, pointers, cycles, you name it - pretty will manage.
+Pretty is a powerful and versatile pretty printer library for Nim that allows you to print and display Nim types in a visually appealing and easy-to-read format. With Pretty, you can print your data structures with syntax highlighting, smart indentation, and support for various data types such as tables, sets, JSON, and even procs. It is designed to help you debug and understand your code more efficiently.
 
 ```nim
 import pretty
@@ -24,9 +24,20 @@ print a
 a: 3
 ```
 
+## Features
+
+- **Syntax Highlighting**: Pretty prints your data structures with syntax highlighting, making it visually pleasing and easier to read.
+- **Smart Indentation**: If the output exceeds the maximum width of the current terminal, Pretty creates indentation levels for improved readability.
+- **Nim-Friendly Output**: The library outputs the data in the exact same format you would use to create it in your Nim source code. You can copy and paste the output back into your code, and it will compile seamlessly in most cases.
+- **Handles Complex Types**: Pretty can handle complex types such as references, pointers, cycles, and nils effortlessly.
+- **No External Dependencies**: Pretty has no dependencies other than the Nim standard library, ensuring easy integration into your projects.
+- **Support for Various Data Types**: Pretty supports common data types like HashTable, HashSet, and JsonNode, printing them neatly without exposing their internal details.
+- **Table Printing**: Pretty offers the ability to print data as tables, providing a more natural and intuitive way to display information compared to nested data structures.
+
+
 ## The "Nim way"
 
-Pretty don't just print your data structures - it spits 'em out in the exact same format you'd use to create 'em in your Nim source code. It's like magic, man. You can literally copy and paste that output back into your code and it'll compile like a charm in most cases. Its very important 'cause you gotta be able to get back what you put in.
+Pretty doesn't just print your data structures; it reproduces them in the exact same format you would use to create them in your Nim source code. It's like magic! You can simply copy and paste the output back into your code, and it will compile seamlessly in most cases. This is incredibly cool because as it allows you to retrieve and reproduce the original data effortlessly.
 
 ```nim
 let
@@ -70,9 +81,9 @@ g2: Bar(
 
 ## Stuff `echo` does not do well
 
-If you've used Nim before, you know that printing refs is a real pain in the butt. Nim will complain that there's no $ operator, even though it already knows how to print them. And even if you do create a $ operator for your ref object, you still have to handle nils and cycles yourself!
+If you've used Nim before, you know that printing `ref object`s is a real pain. Nim will complain that there's no `$` operator, even though it already knows how to print them. And even if you do create a `$` operator for your `ref object`, you still have to handle nils and cycles yourself!
 
-That's where pretty comes in clutch. It can print nils, refs, and pointers like a true champ, no sweat.
+That's where pretty comes in. It can print `nil`s, `ref`s, and `pointer`s.
 
 ```nim
 g2=Bar(
@@ -115,7 +126,7 @@ n: Node(data: "hi", next: ...)
 
 ## Pretty also does Tables, Sets and even Json!
 
-You got that straight! Pretty is aware of common data types that would normally print out all messy with their internals exposed. But when it comes to `HashTable`, `HashSet`, or `JsonNode`, it knows how to print them out in a neat and tidy fashion. No ugly internals to be found here!
+You got that straight! Pretty is fully aware of common data types like `HashTable`, `HashSet`, and `JsonNode`, which often print out in a messy manner, exposing their internal details. . No ugly internals to be found here!
 
 ```nim
 let json = %*{
