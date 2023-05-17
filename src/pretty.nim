@@ -36,7 +36,7 @@ type
     parent: Node
 
 const
-  ESC* = "\x1b["
+  ESC* = "\e["
 
 proc pickColors(kind: NodeKind): string =
   case kind:
@@ -385,10 +385,52 @@ macro prettyWalk*(n: varargs[untyped]): untyped =
     command
   )
 
+proc windowsColorPrint(s: string) =
+  ## This function addresses a known issue on Windows systems when using
+  ## Visual Studio Code, where strings are printed with Unix escape characters
+  ## for color coding, leading to incorrect wrapping.
+  ## Instead of relying on Unix-style escape characters, this function converts
+  ## Unix terminal codes into the Windows color API to ensure proper
+  ## colorization and formatting of the output string.
+  var i = 0
+  while i < s.len:
+    if s[i] == '\e':
+      # Escape sequence detected.
+      if s[i + 2 ..< i + 4] == "0m":
+        resetAttributes()
+        i += 4
+      else:
+        # Only basic color codes are supported.
+        case s[i + 2 ..< i + 5]:
+          of "30m": setForegroundColor(fgBlack)
+          of "31m": setForegroundColor(fgRed)
+          of "32m": setForegroundColor(fgGreen)
+          of "33m": setForegroundColor(fgYellow)
+          of "34m": setForegroundColor(fgBlue)
+          of "35m": setForegroundColor(fgMagenta)
+          of "36m": setForegroundColor(fgCyan)
+          of "37m": setForegroundColor(fgWhite)
+          else: resetAttributes()
+        i += 5
+    elif s[i] == '\n':
+      # Newline character detected
+      # use Windows-style carriage return and line feed
+      stdout.write("\r\n")
+      inc i
+    else:
+      # Regular character, write it to the console
+      stdout.write(s[i])
+      inc i
+  stdout.write("\r\n")
+  resetAttributes()
+
 template print*(n: varargs[untyped]): untyped =
   {.cast(gcSafe), cast(noSideEffect).}:
     try:
-      debugEcho prettyString(prettyWalk(n))
+      when defined(windows):
+        windowsColorPrint(prettyString(prettyWalk(n)))
+      else:
+        debugEcho prettyString(prettyWalk(n))
     except:
       discard
 
