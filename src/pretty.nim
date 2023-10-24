@@ -168,6 +168,8 @@ proc add*(ctx: PrettyContext, name: string, v: tuple) =
   let p = ctx.parent
   let node = Node(kind: TupleNode, name: name)
   ctx.parent = node
+  let objName = ""
+  ctx.parent.nodes.add Node(kind: TypeNameNode, value: objName)
   for n, e in v.fieldPairs:
     if n.startsWith("Field"):
       ctx.add("", e)
