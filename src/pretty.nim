@@ -64,7 +64,7 @@ proc escapeString*(v: string, q = "\""): string =
       # If the rune is a control character, print it's code
       echo (r: r, i: r.int32)
       if r.int32 in {0..0x001F, 0x007F, 0x0080..0x009F}:
-        result.add "\\x" & toHex(r.int32, 4).toLowerAscii()
+        result.add "\\u" & toHex(r.int32, 4).toLowerAscii()
       else:
         result.add r
   result.add q
