@@ -1,7 +1,7 @@
-import std/[macros, sets, strutils, typetraits, math, tables, json]
+import std/[macros, sets, strutils, typetraits, math, tables, json, unicode]
 
 when defined(js):
-  import std/jsffi 
+  import std/jsffi
   var process {.importc, nodecl.}: JsObject
 else:
   import std/terminal
@@ -55,19 +55,22 @@ proc pickColors(kind: NodeKind): string =
 
 proc escapeString*(v: string, q = "\""): string =
   result.add q
-  for c in v:
-    case c:
-    of '\0': result.add r"\0"
-    of '\\': result.add r"\\"
-    of '\b': result.add r"\b"
-    of '\f': result.add r"\f"
-    of '\n': result.add r"\n"
-    of '\r': result.add r"\r"
-    of '\t': result.add r"\t"
+  for r in v.runes:
+    case r:
+    of '\0'.Rune: result.add r"\0"
+    of '\\'.Rune: result.add r"\\"
+    of '\b'.Rune: result.add r"\b"
+    of '\f'.Rune: result.add r"\f"
+    of '\n'.Rune: result.add r"\n"
+    of '\r'.Rune: result.add r"\r"
+    of '\t'.Rune: result.add r"\t"
     else:
-      if ord(c) > 128:
-        result.add "\\x" & toHex(ord(c), 2).toLowerAscii()
-      result.add c
+      # If the rune is a control character, print it's code
+      echo (r: r, i: r.int32)
+      if r.int32 in {0..0x001F, 0x007F, 0x0080..0x009F}:
+        result.add "\\u" & toHex(r.int32, 4).toLowerAscii()
+      else:
+        result.add r
   result.add q
 
 proc escapeChar(v: string): string =
