@@ -1,7 +1,10 @@
-import macros, sets, strutils, typetraits, math, tables, json, unicode
+import std/[macros, sets, strutils, typetraits, math, tables, json]
 
-when not defined(js):
-  import terminal
+when defined(js):
+  import std/jsffi 
+  var process {.importc, nodecl.}: JsObject
+else:
+  import std/terminal
 
 type
   NodeKind = enum
@@ -20,6 +23,7 @@ type
     ProcNode
     EnumNode
     TableNode
+    OrderedTableNode
     HashSetNode
 
   Node = ref object
@@ -127,6 +131,17 @@ proc add*[K, V](ctx: PrettyContext, name: string, v: Table[K, V]) =
   let node = Node(kind: TableNode, name: name)
   ctx.parent = node
   let objName = "Table"
+  ctx.parent.nodes.add Node(kind: TypeNameNode, value: objName)
+  for k, v in v:
+    ctx.add($k, v)
+  ctx.parent = p
+  ctx.parent.nodes.add(node)
+
+proc add*[K, V](ctx: PrettyContext, name: string, v: OrderedTable[K, V]) =
+  let p = ctx.parent
+  let node = Node(kind: OrderedTableNode, name: name)
+  ctx.parent = node
+  let objName = "OrderedTable"
   ctx.parent.nodes.add Node(kind: TypeNameNode, value: objName)
   for k, v in v:
     ctx.add($k, v)
@@ -310,7 +325,7 @@ proc prettyString*(ctx: PrettyContext, node: Node, indent: int = 0): string =
         of ObjectNode:
           result.add ctx.prettyString(node.nodes[0])
           result.add "("
-        of TableNode: result.add "{"
+        of TableNode, OrderedTableNode: result.add "{"
         of HashSetNode: result.add "["
         else: discard
       if useBlock:
@@ -333,6 +348,7 @@ proc prettyString*(ctx: PrettyContext, node: Node, indent: int = 0): string =
         of SetNode: result.add "}"
         of ObjectNode: result.add ")"
         of TableNode: result.add "}.toTable"
+        of OrderedTableNode: result.add "}.toOrderedTable"
         of HashSetNode: result.add "].toHashSet"
         else: discard
 
@@ -388,44 +404,45 @@ macro prettyWalk*(n: varargs[untyped]): untyped =
     command
   )
 
-proc windowsColorPrint(s: string) =
-  ## This function addresses a known issue on Windows systems when using
-  ## Visual Studio Code, where strings are printed with Unix escape characters
-  ## for color coding, leading to incorrect wrapping.
-  ## Instead of relying on Unix-style escape characters, this function converts
-  ## Unix terminal codes into the Windows color API to ensure proper
-  ## colorization and formatting of the output string.
-  var i = 0
-  while i < s.len:
-    if s[i] == '\e':
-      # Escape sequence detected.
-      if s[i + 2 ..< i + 4] == "0m":
-        resetAttributes()
-        i += 4
+when defined(windows):
+  proc windowsColorPrint(s: string) =
+    ## This function addresses a known issue on Windows systems when using
+    ## Visual Studio Code, where strings are printed with Unix escape characters
+    ## for color coding, leading to incorrect wrapping.
+    ## Instead of relying on Unix-style escape characters, this function converts
+    ## Unix terminal codes into the Windows color API to ensure proper
+    ## colorization and formatting of the output string.
+    var i = 0
+    while i < s.len:
+      if s[i] == '\e':
+        # Escape sequence detected.
+        if s[i + 2 ..< i + 4] == "0m":
+          resetAttributes()
+          i += 4
+        else:
+          # Only basic color codes are supported.
+          case s[i + 2 ..< i + 5]:
+            of "30m": setForegroundColor(fgBlack)
+            of "31m": setForegroundColor(fgRed)
+            of "32m": setForegroundColor(fgGreen)
+            of "33m": setForegroundColor(fgYellow)
+            of "34m": setForegroundColor(fgBlue)
+            of "35m": setForegroundColor(fgMagenta)
+            of "36m": setForegroundColor(fgCyan)
+            of "37m": setForegroundColor(fgWhite)
+            else: resetAttributes()
+          i += 5
+      elif s[i] == '\n':
+        # Newline character detected
+        # use Windows-style carriage return and line feed
+        stdout.write("\r\n")
+        inc i
       else:
-        # Only basic color codes are supported.
-        case s[i + 2 ..< i + 5]:
-          of "30m": setForegroundColor(fgBlack)
-          of "31m": setForegroundColor(fgRed)
-          of "32m": setForegroundColor(fgGreen)
-          of "33m": setForegroundColor(fgYellow)
-          of "34m": setForegroundColor(fgBlue)
-          of "35m": setForegroundColor(fgMagenta)
-          of "36m": setForegroundColor(fgCyan)
-          of "37m": setForegroundColor(fgWhite)
-          else: resetAttributes()
-        i += 5
-    elif s[i] == '\n':
-      # Newline character detected
-      # use Windows-style carriage return and line feed
-      stdout.write("\r\n")
-      inc i
-    else:
-      # Regular character, write it to the console
-      stdout.write(s[i])
-      inc i
-  stdout.write("\r\n")
-  resetAttributes()
+        # Regular character, write it to the console
+        stdout.write(s[i])
+        inc i
+    stdout.write("\r\n")
+    resetAttributes()
 
 template print*(n: varargs[untyped]): untyped =
   {.cast(gcSafe), cast(noSideEffect).}:
@@ -435,7 +452,7 @@ template print*(n: varargs[untyped]): untyped =
       else:
         debugEcho prettyString(prettyWalk(n))
     except:
-      discard
+      raise
 
 type TableStyle* = enum
   Fancy
@@ -443,14 +460,12 @@ type TableStyle* = enum
 
 proc printStr(s: string) =
   when defined(js):
-    line.add(s)
+    process.stdout.write(s)
   else:
     stdout.write(s)
 
-proc printStr(c: ForeGroundColor, s: string) =
-  when defined(js):
-    line.add(s)
-  else:
+when not defined(js):
+  proc printStr(c: ForeGroundColor, s: string) =
     stdout.styledWrite(c, s)
 
 # Work around for both jsony and print needs this.
@@ -537,13 +552,22 @@ proc printTable*[T](arr: seq[T], style = Fancy) =
       printStr("│ ")
       for k, v in item.prettyFieldPairs:
         let text = table[i][col]
-        if number[col]:
-          printStr(" ".repeat(widths[col] - text.len))
-          printStr(fgBlue, text)
+        when defined(js):
+          if number[col]:
+            printStr(" ".repeat(widths[col] - text.len))
+            printStr(text)
+          else:
+            printStr(text)
+            printStr(" ".repeat(widths[col] - text.len))
+          printStr(" │ ")
         else:
-          printStr(fgGreen, text)
-          printStr(" ".repeat(widths[col] - text.len))
-        printStr(" │ ")
+          if number[col]:
+            printStr(" ".repeat(widths[col] - text.len))
+            printStr(fgBlue, text)
+          else:
+            printStr(fgGreen, text)
+            printStr(" ".repeat(widths[col] - text.len))
+          printStr(" │ ")
         inc col
       printStr("\n")
 
@@ -572,15 +596,26 @@ proc printTable*[T](arr: seq[T], style = Fancy) =
       var col = 0
       for k, v in item.prettyFieldPairs:
         let text = table[i][col]
-        if number[col]:
-          for j in text.len ..< widths[col]:
-            printStr(" ")
-          printStr(fgBlue, text)
-        else:
-          printStr(fgGreen, text)
-          if not number[col]:
+        when defined(js):
+          if number[col]:
             for j in text.len ..< widths[col]:
               printStr(" ")
+            printStr(text)
+          else:
+            printStr(text)
+            if not number[col]:
+              for j in text.len ..< widths[col]:
+                printStr(" ")
+        else:
+          if number[col]:
+            for j in text.len ..< widths[col]:
+              printStr(" ")
+            printStr(fgBlue, text)
+          else:
+            printStr(fgGreen, text)
+            if not number[col]:
+              for j in text.len ..< widths[col]:
+                printStr(" ")
         printStr("   ")
         inc col
       printStr("\n")
@@ -623,26 +658,49 @@ proc printBarChart*[N:SomeNumber](data: seq[(string, N)]) =
     barScale = chartWidth.float / (maxNumber.float - minNumber.float)
     preZero = (-minNumber.float * barScale).ceil.int
 
-  for (k, v) in data:
-    var line = ""
-    printStr " ".repeat(maxKeyWidth - k.len)
-    printStr fgGreen, k
-    printStr ": "
+  when defined(js):
+    for (k, v) in data:
+      printStr " ".repeat(maxKeyWidth - k.len)
+      printStr k
+      printStr ": "
 
-    let barWidth = v.float * barScale
-    if minNumber == 0:
-      printStr fillChar.repeat(floor(barWidth).int)
-      printStr " "
-      printStr fgBlue, $v
-    else:
-      if barWidth >= 0:
-        printStr " ".repeat(preZero + maxLabel)
+      let barWidth = v.float * barScale
+      if minNumber == 0:
+        printStr fillChar.repeat(floor(barWidth).int)
+        printStr " "
+        printStr $v
+      else:
+        if barWidth >= 0:
+          printStr " ".repeat(preZero + maxLabel)
+          printStr fillChar.repeat(floor(barWidth).int)
+          printStr " "
+          printStr v
+        else:
+          printStr " ".repeat(preZero + barWidth.int + maxLabel - ($v).len)
+          printStr $v
+          printStr " "
+          printStr fillChar.repeat(floor(-barWidth).int - 1)
+      printStr "\n"
+  else:
+    for (k, v) in data:
+      printStr " ".repeat(maxKeyWidth - k.len)
+      printStr fgGreen, k
+      printStr ": "
+
+      let barWidth = v.float * barScale
+      if minNumber == 0:
         printStr fillChar.repeat(floor(barWidth).int)
         printStr " "
         printStr fgBlue, $v
       else:
-        printStr " ".repeat(preZero + barWidth.int + maxLabel - ($v).len)
-        printStr fgBlue, $v
-        printStr " "
-        printStr fillChar.repeat(floor(-barWidth).int - 1)
-    printStr "\n"
+        if barWidth >= 0:
+          printStr " ".repeat(preZero + maxLabel)
+          printStr fillChar.repeat(floor(barWidth).int)
+          printStr " "
+          printStr fgBlue, $v
+        else:
+          printStr " ".repeat(preZero + barWidth.int + maxLabel - ($v).len)
+          printStr fgBlue, $v
+          printStr " "
+          printStr fillChar.repeat(floor(-barWidth).int - 1)
+      printStr "\n"
