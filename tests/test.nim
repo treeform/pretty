@@ -199,3 +199,9 @@ block:
   for i in 0 ..< 20:
     json2.add(%("element" & $i))
   print json2
+
+block:
+  # test unicode
+  print "hi there 😊"
+  print "《自然哲学的数学原理》"
+  print "Пожалуйста"
