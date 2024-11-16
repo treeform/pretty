@@ -1,35 +1,38 @@
-PrettyContext	pretty.html#PrettyContext	pretty: PrettyContext	
-ESC	pretty.html#ESC	pretty: ESC	
-escapeString	pretty.html#escapeString,string,string	pretty: escapeString(v: string; q = &quot;\&quot;&quot;): string	
-newPrettyContext	pretty.html#newPrettyContext	pretty: newPrettyContext(): PrettyContext	
-add	pretty.html#add,PrettyContext,string	pretty: add(ctx: PrettyContext; v: string)	
-add	pretty.html#add,PrettyContext,string,	pretty: add(ctx: PrettyContext; name: string; v: string | cstring)	
-add	pretty.html#add,PrettyContext,string,char	pretty: add(ctx: PrettyContext; name: string; v: char)	
-add	pretty.html#add,PrettyContext,string,bool	pretty: add(ctx: PrettyContext; name: string; v: bool)	
-add	pretty.html#add,PrettyContext,string,SomeNumber	pretty: add(ctx: PrettyContext; name: string; v: SomeNumber)	
-add	pretty.html#add,PrettyContext,string,array[N,T]	pretty: add[N, T](ctx: PrettyContext; name: string; v: array[N, T])	
-add	pretty.html#add,PrettyContext,string,seq[T]	pretty: add[T](ctx: PrettyContext; name: string; v: seq[T])	
-add	pretty.html#add,PrettyContext,string,Table[K,V]	pretty: add[K, V](ctx: PrettyContext; name: string; v: Table[K, V])	
-add	pretty.html#add,PrettyContext,string,HashSet[T]	pretty: add[T](ctx: PrettyContext; name: string; v: HashSet[T])	
-add	pretty.html#add,PrettyContext,string,_2	pretty: add(ctx: PrettyContext; name: string; v: object)	
-add	pretty.html#add,PrettyContext,string,ref.	pretty: add(ctx: PrettyContext; name: string; v: ref object)	
-add	pretty.html#add,PrettyContext,string,_3	pretty: add(ctx: PrettyContext; name: string; v: tuple)	
-add	pretty.html#add,PrettyContext,string,proc	pretty: add(ctx: PrettyContext; name: string; v: proc)	
-add	pretty.html#add,PrettyContext,string,ptr.T	pretty: add[T](ctx: PrettyContext; name: string; v: ptr T)	
-add	pretty.html#add,PrettyContext,string,pointer	pretty: add(ctx: PrettyContext; name: string; v: pointer)	
-add	pretty.html#add,PrettyContext,string,UncheckedArray[T]	pretty: add[T](ctx: PrettyContext; name: string; v: UncheckedArray[T])	
-add	pretty.html#add,PrettyContext,string,_4	pretty: add(ctx: PrettyContext; name: string; v: enum)	
-add	pretty.html#add,PrettyContext,string,type	pretty: add(ctx: PrettyContext; name: string; v: type)	
-add	pretty.html#add,PrettyContext,string,_5	pretty: add(ctx: PrettyContext; name: string; v: distinct)	
-add	pretty.html#add,PrettyContext,string,set[T]	pretty: add[T](ctx: PrettyContext; name: string; v: set[T])	
-add	pretty.html#add,PrettyContext,string,JsonNode	pretty: add(ctx: PrettyContext; name: string; v: JsonNode)	
-prettyString	pretty.html#prettyString,PrettyContext,Node,int	pretty: prettyString(ctx: PrettyContext; node: Node; indent: int = 0): string	
-prettyString	pretty.html#prettyString,PrettyContext	pretty: prettyString(ctx: PrettyContext): string	
-prettyWalk	pretty.html#prettyWalk.m,varargs[untyped]	pretty: prettyWalk(n: varargs[untyped]): untyped	
-print	pretty.html#print.t,varargs[untyped]	pretty: print(n: varargs[untyped]): untyped	
-Fancy	pretty.html#Fancy	TableStyle.Fancy	
-Plain	pretty.html#Plain	TableStyle.Plain	
-TableStyle	pretty.html#TableStyle	pretty: TableStyle	
-prettyFieldPairs	pretty.html#prettyFieldPairs.t,untyped	pretty: prettyFieldPairs(x: untyped): untyped	
-printTable	pretty.html#printTable,seq[T]	pretty: printTable[T](arr: seq[T]; style = Fancy)	
-printBarChart	pretty.html#printBarChart,seq[]	pretty: printBarChart[N: SomeNumber](data: seq[(string, N)])	
+nimTitle	pretty	pretty.html	module src/pretty		0
+nim	PrettyContext	pretty.html#PrettyContext	type PrettyContext		31
+nim	ESC	pretty.html#ESC	const ESC		39
+nim	escapeString	pretty.html#escapeString,string,string	proc escapeString(v: string; q = "\""): string		52
+nim	newPrettyContext	pretty.html#newPrettyContext	proc newPrettyContext(): PrettyContext		72
+nim	add	pretty.html#add,PrettyContext,string	proc add(ctx: PrettyContext; v: string)		85
+nim	add	pretty.html#add,PrettyContext,string,	proc add(ctx: PrettyContext; name: string; v: string | cstring)		88
+nim	add	pretty.html#add,PrettyContext,string,char	proc add(ctx: PrettyContext; name: string; v: char)		91
+nim	add	pretty.html#add,PrettyContext,string,bool	proc add(ctx: PrettyContext; name: string; v: bool)		94
+nim	add	pretty.html#add,PrettyContext,string,SomeNumber	proc add(ctx: PrettyContext; name: string; v: SomeNumber)		97
+nim	add	pretty.html#add,PrettyContext,string,array[N,T]	proc add[N, T](ctx: PrettyContext; name: string; v: array[N, T])		100
+nim	add	pretty.html#add,PrettyContext,string,seq[T]	proc add[T](ctx: PrettyContext; name: string; v: seq[T])		111
+nim	add	pretty.html#add,PrettyContext,string,Table[K,V]	proc add[K, V](ctx: PrettyContext; name: string; v: Table[K, V])		122
+nim	add	pretty.html#add,PrettyContext,string,HashSet[T]	proc add[T](ctx: PrettyContext; name: string; v: HashSet[T])		133
+nim	add	pretty.html#add,PrettyContext,string,_2	proc add(ctx: PrettyContext; name: string; v: object)		144
+nim	add	pretty.html#add,PrettyContext,string,ref.	proc add(ctx: PrettyContext; name: string; v: ref object)		155
+nim	add	pretty.html#add,PrettyContext,string,_3	proc add(ctx: PrettyContext; name: string; v: tuple)		167
+nim	add	pretty.html#add,PrettyContext,string,proc	proc add(ctx: PrettyContext; name: string; v: proc)		179
+nim	add	pretty.html#add,PrettyContext,string,ptr.T	proc add[T](ctx: PrettyContext; name: string; v: ptr T)		187
+nim	add	pretty.html#add,PrettyContext,string,pointer	proc add(ctx: PrettyContext; name: string; v: pointer)		199
+nim	add	pretty.html#add,PrettyContext,string,UncheckedArray[T]	proc add[T](ctx: PrettyContext; name: string; v: UncheckedArray[T])		203
+nim	add	pretty.html#add,PrettyContext,string,_4	proc add(ctx: PrettyContext; name: string; v: enum)		207
+nim	add	pretty.html#add,PrettyContext,string,type	proc add(ctx: PrettyContext; name: string; v: type)		210
+nim	add	pretty.html#add,PrettyContext,string,_5	proc add(ctx: PrettyContext; name: string; v: distinct)		213
+nim	add	pretty.html#add,PrettyContext,string,set[T]	proc add[T](ctx: PrettyContext; name: string; v: set[T])		216
+nim	add	pretty.html#add,PrettyContext,string,JsonNode	proc add(ctx: PrettyContext; name: string; v: JsonNode)		225
+nim	prettyString	pretty.html#prettyString,PrettyContext,Node,int	proc prettyString(ctx: PrettyContext; node: Node; indent: int = 0): string		270
+nim	prettyString	pretty.html#prettyString,PrettyContext	proc prettyString(ctx: PrettyContext): string		336
+nim	prettyWalk	pretty.html#prettyWalk.m,varargs[untyped]	macro prettyWalk(n: varargs[untyped]): untyped		339
+nim	print	pretty.html#print.t,varargs[untyped]	template print(n: varargs[untyped]): untyped		427
+nim	Fancy	pretty.html#Fancy	TableStyle.Fancy		437
+nim	Plain	pretty.html#Plain	TableStyle.Plain		437
+nim	TableStyle	pretty.html#TableStyle	enum TableStyle		437
+nim	prettyFieldPairs	pretty.html#prettyFieldPairs.t,untyped	template prettyFieldPairs(x: untyped): untyped		454
+nim	printTable	pretty.html#printTable,seq[T]	proc printTable[T](arr: seq[T]; style = Fancy)		460
+nim	printBarChart	pretty.html#printBarChart,seq[]	proc printBarChart[N: SomeNumber](data: seq[(string, N)])		585
+nimgrp	add	pretty.html#add-procs-all	proc		85
+nimgrp	prettystring	pretty.html#prettyString-procs-all	proc		270
