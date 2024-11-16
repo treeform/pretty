@@ -1,7 +1,7 @@
-import std/[macros, sets, strutils, typetraits, math, tables, json]
+import std/[macros, sets, strutils, typetraits, math, tables, json, unicode]
 
 when defined(js):
-  import std/jsffi 
+  import std/jsffi
   var process {.importc, nodecl.}: JsObject
 else:
   import std/terminal
