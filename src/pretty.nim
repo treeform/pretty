@@ -23,6 +23,7 @@ type
     ProcNode
     EnumNode
     TableNode
+    OrderedTableNode
     HashSetNode
 
   Node = ref object
@@ -127,6 +128,17 @@ proc add*[K, V](ctx: PrettyContext, name: string, v: Table[K, V]) =
   let node = Node(kind: TableNode, name: name)
   ctx.parent = node
   let objName = "Table"
+  ctx.parent.nodes.add Node(kind: TypeNameNode, value: objName)
+  for k, v in v:
+    ctx.add($k, v)
+  ctx.parent = p
+  ctx.parent.nodes.add(node)
+
+proc add*[K, V](ctx: PrettyContext, name: string, v: OrderedTable[K, V]) =
+  let p = ctx.parent
+  let node = Node(kind: OrderedTableNode, name: name)
+  ctx.parent = node
+  let objName = "OrderedTable"
   ctx.parent.nodes.add Node(kind: TypeNameNode, value: objName)
   for k, v in v:
     ctx.add($k, v)
@@ -310,7 +322,7 @@ proc prettyString*(ctx: PrettyContext, node: Node, indent: int = 0): string =
         of ObjectNode:
           result.add ctx.prettyString(node.nodes[0])
           result.add "("
-        of TableNode: result.add "{"
+        of TableNode, OrderedTableNode: result.add "{"
         of HashSetNode: result.add "["
         else: discard
       if useBlock:
@@ -333,6 +345,7 @@ proc prettyString*(ctx: PrettyContext, node: Node, indent: int = 0): string =
         of SetNode: result.add "}"
         of ObjectNode: result.add ")"
         of TableNode: result.add "}.toTable"
+        of OrderedTableNode: result.add "}.toOrderedTable"
         of HashSetNode: result.add "].toHashSet"
         else: discard
 
