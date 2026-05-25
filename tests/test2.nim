@@ -131,7 +131,7 @@ when not defined(js):
     n.next = n.addr
     print n
 
-  var file = open("tests/test.nim")
+  var file = open("tests/tests.nim")
   print file
 
   var ua: ptr UncheckedArray[int]
