@@ -1,4 +1,4 @@
-nimTitle	pretty	pretty.html	module src/pretty		0
+nimTitle	pretty	pretty.html	module pretty		0
 nim	PrettyContext	pretty.html#PrettyContext	type PrettyContext		35
 nim	ESC	pretty.html#ESC	const ESC		43
 nim	escapeString	pretty.html#escapeString,string,string	proc escapeString(v: string; q = "\""): string		56
